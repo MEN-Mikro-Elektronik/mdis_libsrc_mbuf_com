@@ -1325,11 +1325,12 @@ static int32 MBUF_SigInstRemove	/* nodoc */
 {
     int32 fktRetCode;
 
-    DBGWRT_1((DBH,"MBUF_SigInstRemove: \n") );
     if( bufHdl == NULL )
     {
        return( ERR_MBUF_NO_BUF );
     }/*if*/
+
+    DBGWRT_1((DBH,"MBUF_SigInstRemove: \n") );
 
     switch( setstatCode )
     {
