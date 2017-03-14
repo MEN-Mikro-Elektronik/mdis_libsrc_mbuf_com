@@ -15,18 +15,18 @@
  *     Switches:
  *
  *---------------------------[ Public Functions ]----------------------------
- *  
- *  MBUF_Ident             Gets the pointer to ident string. 
- *  MBUF_Create            Allocates memory for the buffer structure and 
- *  MBUF_Remove            Frees the allocated memory MBUF_HANDLE and buffer. 
- *  MBUF_Write             Writes size of bytes to a buffer in LL-Drv setblock. 
- *  MBUF_Read              Reads size of bytes from a buffer in LL-Drv 
- *  MBUF_GetNextBuf        Gets the in or out buffer in LL-drv ISR. 
- *  MBUF_ReadyBuf          Signals end of block rd or wr access to buffer in 
- *  MBUF_EventHdlrInst     Installs buffer event handler 
- *  MBUF_SetStat           Handles set and blocksetstats to the read or write 
- *  MBUF_GetStat           Handles get and blockgetstats to the read or write 
- *  
+ *
+ *  MBUF_Ident             Gets the pointer to ident string.
+ *  MBUF_Create            Allocates memory for the buffer structure and
+ *  MBUF_Remove            Frees the allocated memory MBUF_HANDLE and buffer.
+ *  MBUF_Write             Writes size of bytes to a buffer in LL-Drv setblock.
+ *  MBUF_Read              Reads size of bytes from a buffer in LL-Drv
+ *  MBUF_GetNextBuf        Gets the in or out buffer in LL-drv ISR.
+ *  MBUF_ReadyBuf          Signals end of block rd or wr access to buffer in
+ *  MBUF_EventHdlrInst     Installs buffer event handler
+ *  MBUF_SetStat           Handles set and blocksetstats to the read or write
+ *  MBUF_GetStat           Handles get and blockgetstats to the read or write
+ *
  *-------------------------------[ History ]---------------------------------
  *
  * $Log: mbuf.c,v $
@@ -234,7 +234,7 @@ char* MBUF_Ident( void )
  *                mode         M_BUF_CURRBUF | M_BUF_RINGBUF
  *                             | M_BUF_RINGBUF_OVERWR (only read direction)
  *                direction    buffer to create MBUF_RD | MBUF_WR
- *                lowHighWater buffer low/highwater mark (0..size) 
+ *                lowHighWater buffer low/highwater mark (0..size)
  *                timeout      buffer timeout [msec] (0=endless)
  *
  *
@@ -410,7 +410,7 @@ int32 MBUF_Remove
 	if( bufHdl->buf )
 	{
 		fktRetCode = OSS_MemFree( bufHdl->osHdl, bufHdl->buf, bufHdl->gotSize );
-
+		bufHdl->buf = NULL;
 		if( !retCode && fktRetCode )
 		{
 		   /* no error before but now */
@@ -418,9 +418,9 @@ int32 MBUF_Remove
 		}/*if*/
 	}/*if*/
 
-    fktRetCode = OSS_MemFree( bufHdl->osHdl,
-                              (u_int8*)bufHdl,
-                              bufHdl->ownMemSize );
+    fktRetCode = OSS_MemFree( bufHdl->osHdl, (u_int8*)bufHdl, bufHdl->ownMemSize );
+    bufHdl = NULL;
+
     if( !retCode && fktRetCode )
     {
        /* no error before but now */
@@ -528,9 +528,9 @@ int32 MBUF_Write
                  {  /* handling enabled ? */
                      bufHdl->errorOccured = 0;  /* clear flag */
 					 /* ENABLE irqs */
-                     OSS_IrqRestore( bufHdl->osHdl, 
-									 bufHdl->irqHdl, oldIrqState ); 
-					 
+                     OSS_IrqRestore( bufHdl->osHdl,
+									 bufHdl->irqHdl, oldIrqState );
+
                      return(ERR_MBUF_UNDERRUN);
                  }/*if*/
 
@@ -659,13 +659,13 @@ int32 MBUF_Read
        case M_BUF_CURRBUF:
          if( bufHdl->width > size )             /* buf too small ? */
              return(ERR_MBUF_USERBUF);
-		 /* DISABLE irqs */	
-         oldIrqState = OSS_IrqMaskR( bufHdl->osHdl, bufHdl->irqHdl ); 
-         OSS_MemCopy( bufHdl->osHdl, 
-					  bufHdl->width, 
+		 /* DISABLE irqs */
+         oldIrqState = OSS_IrqMaskR( bufHdl->osHdl, bufHdl->irqHdl );
+         OSS_MemCopy( bufHdl->osHdl,
+					  bufHdl->width,
 					  (char*)bufHdl->buf, (char*)usrbuf);  /* took data */
 		 /* ENABLE irqs */
-         OSS_IrqRestore( bufHdl->osHdl, bufHdl->irqHdl, oldIrqState ); 
+         OSS_IrqRestore( bufHdl->osHdl, bufHdl->irqHdl, oldIrqState );
          *nbrRdBytesP = bufHdl->width;
          return( 0 );
          break;
@@ -682,7 +682,7 @@ int32 MBUF_Read
          while( request )  /* while entries requested */
          {
 			 /* DISABLE irqs */
-             oldIrqState = OSS_IrqMaskR( bufHdl->osHdl, 
+             oldIrqState = OSS_IrqMaskR( bufHdl->osHdl,
 										 bufHdl->irqHdl );
 
              DBGWRT_1((DBH," req=%ld, fill=%08p empty=%08p cnt=%ld\n",
@@ -692,8 +692,8 @@ int32 MBUF_Read
                  if( bufHdl->errorEnabled )
                  {   /* handling enabled ? */
                      bufHdl->errorOccured = 0;   /* clear flag */
-					 OSS_IrqRestore( bufHdl->osHdl, 
-									 bufHdl->irqHdl, 
+					 OSS_IrqRestore( bufHdl->osHdl,
+									 bufHdl->irqHdl,
 									 oldIrqState ); /* ENABLE irqs */
                      return(ERR_MBUF_OVERFLOW);
                  }
@@ -703,13 +703,13 @@ int32 MBUF_Read
              +--------------------------*/
              if( bufHdl->count > 0 )
              {
-                 OSS_MemCopy(bufHdl->osHdl, 
-							 bufHdl->width, 
+                 OSS_MemCopy(bufHdl->osHdl,
+							 bufHdl->width,
 							 (char*)bufHdl->empty, (char*)usrbuf);
                  bufHdl->empty += bufHdl->width;     /* took data */
                  bufHdl->count -= bufHdl->width;
-                 OSS_IrqRestore( bufHdl->osHdl, 
-								 bufHdl->irqHdl, 
+                 OSS_IrqRestore( bufHdl->osHdl,
+								 bufHdl->irqHdl,
 								 oldIrqState ); /* ENABLE irqs */
 
                  if (bufHdl->empty > bufHdl->end)    /* at end of buf ? */
@@ -1815,7 +1815,7 @@ int32 MBUF_SetStat
 			else return( ERR_MBUF_ILL_DIR );
 		}
 	}
-    
+
 	/* write buffer mode ? */
     if ((((code) >= M_WRBUF_OF) && ((code) <= M_WRBUF_LAST) )  || \
 	 (((code) >= M_WRBUF_BLK_OF) && ((code) <= M_WRBUF_BLK_LAST)))
@@ -1949,7 +1949,7 @@ int32 MBUF_GetStat
 			else return( ERR_MBUF_ILL_DIR );
 		}
 	}
-    
+
 	/* write buffer mode ? */
     if ((((code) >= M_WRBUF_OF) && ((code) <= M_WRBUF_LAST) )  || \
 	 (((code) >= M_WRBUF_BLK_OF) && ((code) <= M_WRBUF_BLK_LAST)))
