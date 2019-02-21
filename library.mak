@@ -6,18 +6,8 @@
 #  
 #    Description: makefile descriptor for library 
 #                      
-#---------------------------------[ History ]---------------------------------
-#
-#   $Log: library.mak,v $
-#   Revision 1.1  1998/03/10 12:21:17  franke
-#   Added by mcvs
-#
-#   Revision 1.1  1998/02/04 13:55:51  ds
-#   initial revision
-#
-#
 #-----------------------------------------------------------------------------
-#   (c) Copyright 1998 by MEN mikro elektronik GmbH, Nuernberg, Germany 
+#   Copyright (c) 1998-2019, MEN Mikro Elektronik GmbH
 #*****************************************************************************
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
