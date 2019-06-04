@@ -1,8 +1,6 @@
 #**************************  M a k e f i l e ********************************
 #  
-#        $Author: franke $
-#          $Date: 1998/03/10 12:21:17 $
-#      $Revision: 1.1 $
+#        Author: franke 
 #  
 #    Description: makefile descriptor for library 
 #                      
@@ -24,6 +22,11 @@
 
 
 MAK_NAME=mbuf
+# the next line is updated during the MDIS installation
+STAMPED_REVISION="mdis_libsrc_mbuf_com_02_27-0-g70c536e-dirty_2019-02-21"
+
+DEF_REVISION=MAK_REVISION=$(STAMPED_REVISION)
+MAK_SWITCH=$(SW_PREFIX)$(DEF_REVISION)
 
 MAK_LIBS=
 

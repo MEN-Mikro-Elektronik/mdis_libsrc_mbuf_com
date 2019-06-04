@@ -1,11 +1,9 @@
 /*********************  P r o g r a m  -  M o d u l e ***********************
  *
  *         Name: mbuf.c
- *      Project: MDIS 4.0 / LL Driver
+ *      Project:/ LL Driver
  *
  *       Author: uf
- *        $Date: 2010/04/21 16:51:11 $
- *    $Revision: 1.18 $
  *
  *  Description: read/write buffer handling and
  *               signaling to application and
@@ -45,10 +43,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-static const char RCSid[]="$Id: mbuf.c,v 1.18 2010/04/21 16:51:11 CRuff Exp $";
 
 #include "MEN/men_typs.h"
 #include <MEN/dbg.h>
+
 #include "MEN/oss.h"
 #include "MEN/mdis_err.h"
 #include "MEN/mdis_api.h"
@@ -93,6 +91,8 @@ typedef struct {              /* i/o buffer data:              */
 #define _NO_MBUF_HANDLE
 /* MBUF_HANDLE needs to be declared BEFORE including mbuf.h */
 #include "MEN/mbuf.h"
+
+static const char IdentString[]=MENT_XSTR(MAK_REVISION);
 
 /*-----------------------------------------+
 |  DEFINES & CONST                         |
@@ -140,7 +140,7 @@ static int32 MBUF_RdWrSemWait(
  ****************************************************************************/
 char* MBUF_Ident( void )
 {
-	return("MBUF - Buffer Manager: $Id: mbuf.c,v 1.18 2010/04/21 16:51:11 CRuff Exp $");
+	return( (char*) IdentString );
 }/*MBUF_Ident*/
 
 
